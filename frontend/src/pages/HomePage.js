@@ -1,4 +1,6 @@
 import React, { useEffect, useRef } from 'react';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Player } from '@lottiefiles/react-lottie-player';
@@ -7,21 +9,9 @@ import { Card, CardContent } from '../components/ui/card';
 import { ArrowRight, Database, Search, Bot, Globe, Users, TrendingUp, Shield, Waves } from 'lucide-react';
 
 const HomePage = () => {
-  const waveRef = useRef(null);
+  
 
-  useEffect(() => {
-    // Simple wave animation
-    const wave = waveRef.current;
-    if (wave) {
-      let start = 0;
-      const animate = () => {
-        start += 0.01;
-        wave.style.transform = `translateX(${Math.sin(start) * 10}px)`;
-        requestAnimationFrame(animate);
-      };
-      animate();
-    }
-  }, []);
+  
 
   const features = [
     {
@@ -110,17 +100,10 @@ const HomePage = () => {
       </div>
       
       {/* Content Overlay */}
-      <div className="relative z-10 bg-white/10 dark:bg-black/20 backdrop-blur-sm">
+      <div className="relative z-10">
         {/* Hero Section */}
-        <section className="relative overflow-hidden -mt-16 pt-20">
-        {/* Animated Wave Background */}
-        <div 
-          ref={waveRef}
-          className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='20' viewBox='0 0 100 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M21.184 20c.357-.13.72-.264 1.088-.402l1.768-.661C33.64 15.347 39.647 14 50 14c10.271 0 15.362 1.222 24.629 4.928.955.383 1.869.74 2.75 1.072h6.225c-2.51-.73-5.139-1.691-8.233-2.928C65.888 13.278 60.562 12 50 12c-10.626 0-16.855 1.397-26.66 5.063l-1.767.662c-2.475.923-4.66 1.674-6.724 2.275h6.335zm0-20C13.258 2.892 8.077 4 0 4V2c5.744 0 9.951-.574 14.85-2h6.334zM77.38 0C85.239 2.966 90.502 4 100 4V2c-6.842 0-11.386-.542-16.396-2h-6.225zM0 14c8.44 0 13.718-1.21 22.272-4.402l1.768-.661C33.64 5.347 39.647 4 50 4c10.271 0 15.362 1.222 24.629 4.928C84.112 12.722 89.438 14 100 14v-2c-10.271 0-15.362-1.222-24.629-4.928C65.888 3.278 60.562 2 50 2 39.374 2 33.145 3.397 23.34 7.063l-1.767.662C13.223 10.84 8.163 12 0 12v2z' fill='%236366f1' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E")`,
-          }}
-        />
+        <section className="relative overflow-hidden -mt-24 pt-20">
+        
         
         <div className="container mx-auto px-4 py-8 lg:py-16">
           <div className="grid lg:grid-cols-2 gap-8 items-center max-w-7xl mx-auto min-h-[80vh]">
@@ -142,14 +125,14 @@ const HomePage = () => {
               </motion.div>
               
               <motion.h1 
-                className="text-5xl lg:text-7xl font-bold text-blue-400 leading-tight"
+                className="text-4xl lg:text-6xl font-bold text-blue-400 leading-tight"
                 variants={itemVariants}
               >
                 India's First AI-Driven Marine Knowledge Platform
               </motion.h1>
               
               <motion.p 
-                className="text-lg lg:text-xl text-gray-300 leading-relaxed max-w-xl"
+                className="text-base lg:text-lg text-gray-300 leading-relaxed max-w-xl"
                 variants={itemVariants}
               >
                 Unifying ocean, fisheries, and biodiversity data for sustainable marine ecosystem management and research.
@@ -382,43 +365,54 @@ const HomePage = () => {
         {/* CTA Section */}
         <section className="py-20 bg-white/5 dark:bg-black/10 backdrop-blur-sm">
           <div className="container mx-auto px-4">
-            <motion.div 
-              className="max-w-3xl mx-auto text-center p-8 bg-white/80 dark:bg-gray-800/80 rounded-2xl backdrop-blur-md shadow-xl border border-white/20 dark:border-gray-700/20"
+            <motion.div
+              className="max-w-6xl mx-auto p-8 bg-white/80 dark:bg-gray-800/80 rounded-2xl backdrop-blur-md shadow-xl border border-white/20 dark:border-gray-700/20"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-6 drop-shadow-sm">
-              Ready to Explore Marine Intelligence?
-            </h2>
-            <p className="text-lg text-gray-700 dark:text-gray-200 mb-8 font-medium">
-              Join the future of marine science with AI-powered insights and comprehensive data analysis.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button asChild size="lg" className="bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 shadow-lg transition-all duration-300">
-                  <Link to="/dashboard">
-                    Get Started <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-              </motion.div>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button asChild variant="outline" size="lg" className="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300">
-                  <Link to="/docs">
-                    View Documentation
-                  </Link>
-                </Button>
-              </motion.div>
-            </div>
-          </motion.div>
-        </div>
+              <div className="grid md:grid-cols-2 gap-8 items-center">
+                <div>
+                  <DotLottieReact
+                    src="https://lottie.host/8c3bd87c-c376-4716-a67a-94768473348a/Xe3YB71vWK.lottie"
+                    loop
+                    autoplay
+                  />
+                </div>
+                <div className="text-center md:text-left">
+                  <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-6 drop-shadow-sm">
+                    Ready to Explore Marine Intelligence?
+                  </h2>
+                  <p className="text-lg text-gray-700 dark:text-gray-200 mb-8 font-medium">
+                    Join the future of marine science with AI-powered insights and comprehensive data analysis.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Button asChild size="lg" className="bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 shadow-lg transition-all duration-300">
+                        <Link to="/dashboard">
+                          Get Started <ArrowRight className="ml-2 h-5 w-5" />
+                        </Link>
+                      </Button>
+                    </motion.div>
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Button asChild variant="outline" size="lg" className="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300">
+                        <Link to="/docs">
+                          View Documentation
+                        </Link>
+                      </Button>
+                    </motion.div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </section>
 
         {/* Footer Section */}
