@@ -11,12 +11,19 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider = ({ children }) => {
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(true); // Default to dark mode
 
   useEffect(() => {
+    // Apply dark class immediately
+    document.documentElement.classList.add('dark');
+    
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
       setIsDark(savedTheme === 'dark');
+    } else {
+      // If no saved preference, default to dark and save it
+      setIsDark(true);
+      localStorage.setItem('theme', 'dark');
     }
   }, []);
 
