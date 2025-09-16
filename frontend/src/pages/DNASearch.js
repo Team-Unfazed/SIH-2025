@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -7,9 +8,10 @@ import { Textarea } from '../components/ui/textarea';
 import { Badge } from '../components/ui/badge';
 import { Progress } from '../components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { Upload, Search, FileText, Dna, AlertCircle, CheckCircle, Download, Microscope } from 'lucide-react';
+import { Upload, Search, FileText, Dna, AlertCircle, CheckCircle, Download, Microscope, ChevronRight } from 'lucide-react';
 import { dnaSearchResults } from '../data/mockData';
 import { toast } from '../hooks/use-toast';
+import { motion } from 'framer-motion';
 
 const DNASearch = () => {
   const [activeTab, setActiveTab] = useState('upload');
@@ -24,8 +26,8 @@ const DNASearch = () => {
     if (file) {
       setUploadedFile(file);
       toast({
-        title: "File uploaded successfully",
-        description: `${file.name} has been uploaded and is ready for analysis.`,
+        title: "File ready for analysis",
+        description: `${file.name} has been uploaded.`,
       });
     }
   };
@@ -42,8 +44,8 @@ const DNASearch = () => {
 
     setIsSearching(true);
     setSearchProgress(0);
+    setSearchResults([]);
 
-    // Simulate search progress
     const progressInterval = setInterval(() => {
       setSearchProgress(prev => {
         if (prev >= 100) {
@@ -54,14 +56,13 @@ const DNASearch = () => {
       });
     }, 200);
 
-    // Simulate API call delay
     setTimeout(() => {
       setSearchResults(dnaSearchResults);
       setIsSearching(false);
       setSearchProgress(100);
       toast({
-        title: "Search completed",
-        description: `Found ${dnaSearchResults.length} matching species.`,
+        title: "Analysis Complete",
+        description: `Found ${dnaSearchResults.length} potential species matches.`,
       });
     }, 2500);
   };
@@ -77,262 +78,167 @@ const DNASearch = () => {
     }
   };
 
-  const getLegalStatusColor = (status) => {
-    switch (status.toLowerCase()) {
-      case 'open': return 'text-green-600 bg-green-100';
-      case 'regulated': return 'text-yellow-600 bg-yellow-100';
-      case 'prohibited': return 'text-red-600 bg-red-100';
-      default: return 'text-gray-600 bg-gray-100';
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-50 dark:from-blue-950 dark:via-black dark:to-blue-950 pt-20">
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <motion.div 
+          className="text-center mb-12"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
             DNA/eDNA Species Identification
           </h1>
-          <p className="text-gray-600 dark:text-gray-300">
-            Upload FASTA sequences or raw DNA data for species identification and biodiversity analysis
+          <p className="text-lg text-gray-600 dark:text-gray-300">
+            Analyze genetic data to uncover marine biodiversity insights.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Search Input Section */}
-          <div className="lg:col-span-1">
-            <Card>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <motion.div 
+            className="lg:col-span-1 space-y-8"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <Card className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-lg border-gray-200/50 dark:border-gray-700/50 shadow-sm hover:shadow-lg transition-shadow duration-300">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Dna className="h-5 w-5" />
-                  <span>DNA Analysis Input</span>
+                <CardTitle className="flex items-center space-x-2 text-gray-800 dark:text-gray-200">
+                  <Dna className="h-5 w-5 text-blue-500" />
+                  <span>Analysis Input</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList className="grid w-full grid-cols-2">
+                  <TabsList className="grid w-full grid-cols-2 bg-gray-200/50 dark:bg-gray-800/50 p-1 rounded-lg">
                     <TabsTrigger value="upload">File Upload</TabsTrigger>
-                    <TabsTrigger value="text">Text Input</TabsTrigger>
+                    <TabsTrigger value="text">Paste Sequence</TabsTrigger>
                   </TabsList>
 
-                  <TabsContent value="upload" className="space-y-4">
-                    <div>
-                      <Label htmlFor="file-upload">Upload FASTA/CSV File</Label>
-                      <div className="mt-2">
-                        <label
-                          htmlFor="file-upload"
-                          className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600"
-                        >
-                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                            <Upload className="w-8 h-8 mb-2 text-gray-500" />
-                            <p className="text-sm text-gray-500">
-                              Click to upload or drag and drop
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              FASTA, CSV, TXT (MAX. 10MB)
-                            </p>
-                          </div>
-                          <input
-                            id="file-upload"
-                            type="file"
-                            className="hidden"
-                            accept=".fasta,.fa,.csv,.txt"
-                            onChange={handleFileUpload}
-                          />
-                        </label>
+                  <TabsContent value="upload" className="mt-4">
+                    <label
+                      htmlFor="file-upload"
+                      className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-gray-50/50 dark:bg-gray-800/40 hover:bg-gray-100/50 dark:hover:bg-gray-700/40 transition-colors"
+                    >
+                      <Upload className="w-8 h-8 mb-2 text-gray-500 dark:text-gray-400" />
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Click to upload or drag & drop</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">FASTA, CSV, TXT (Max 10MB)</p>
+                      <input id="file-upload" type="file" className="hidden" accept=".fasta,.fa,.csv,.txt" onChange={handleFileUpload} />
+                    </label>
+                    {uploadedFile && (
+                      <div className="mt-3 p-2 bg-blue-100/50 dark:bg-blue-900/30 rounded-lg flex items-center space-x-2 text-sm text-blue-800 dark:text-blue-200">
+                        <FileText className="h-4 w-4" />
+                        <span>{uploadedFile.name}</span>
                       </div>
-                      {uploadedFile && (
-                        <div className="mt-2 p-2 bg-blue-50 rounded-lg flex items-center space-x-2">
-                          <FileText className="h-4 w-4 text-blue-600" />
-                          <span className="text-sm text-blue-700">{uploadedFile.name}</span>
-                        </div>
-                      )}
-                    </div>
+                    )}
                   </TabsContent>
 
-                  <TabsContent value="text" className="space-y-4">
-                    <div>
-                      <Label htmlFor="sequence-input">DNA Sequence</Label>
-                      <Textarea
-                        id="sequence-input"
-                        placeholder="Enter DNA sequence (ATCG format)&#10;Example: ATCGATCGATCGATCG..."
-                        value={sequenceText}
-                        onChange={(e) => setSequenceText(e.target.value)}
-                        className="mt-1 min-h-[120px]"
-                      />
-                    </div>
+                  <TabsContent value="text" className="mt-4">
+                    <Textarea
+                      id="sequence-input"
+                      placeholder="Enter DNA sequence, e.g., ATCGATCG..."
+                      value={sequenceText}
+                      onChange={(e) => setSequenceText(e.target.value)}
+                      className="min-h-[160px] bg-gray-50/50 dark:bg-gray-800/40 border-gray-300 dark:border-gray-600"
+                    />
                   </TabsContent>
                 </Tabs>
 
-                <div className="mt-6 space-y-4">
-                  <Button 
-                    onClick={handleSequenceSearch} 
-                    className="w-full"
-                    disabled={isSearching}
-                  >
-                    {isSearching ? (
-                      <>
-                        <Microscope className="mr-2 h-4 w-4 animate-spin" />
-                        Analyzing...
-                      </>
-                    ) : (
-                      <>
-                        <Search className="mr-2 h-4 w-4" />
-                        Identify Species
-                      </>
-                    )}
+                <div className="mt-6">
+                  <Button onClick={handleSequenceSearch} className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={isSearching}>
+                    {isSearching ? <><Microscope className="mr-2 h-4 w-4 animate-spin" />Analyzing...</> : <><Search className="mr-2 h-4 w-4" />Identify Species</>}
                   </Button>
-
-                  {isSearching && (
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Analysis Progress</span>
-                        <span>{searchProgress}%</span>
-                      </div>
-                      <Progress value={searchProgress} />
-                      <p className="text-xs text-gray-500 text-center">
-                        Processing genetic sequences...
-                      </p>
-                    </div>
-                  )}
                 </div>
               </CardContent>
             </Card>
+          </motion.div>
 
-            {/* Analysis Info */}
-            <Card className="mt-6">
+          <motion.div 
+            className="lg:col-span-2"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            <Card className="min-h-[500px] bg-white/60 dark:bg-gray-900/40 backdrop-blur-lg border-gray-200/50 dark:border-gray-700/50 shadow-xl">
               <CardHeader>
-                <CardTitle className="text-lg">Analysis Features</CardTitle>
+                <CardTitle className="flex items-center justify-between text-gray-800 dark:text-gray-200">
+                  Analysis Results
+                  {searchResults.length > 0 && <Button variant="outline" size="sm"><Download className="h-4 w-4 mr-2" />Export</Button>}
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-start space-x-2">
-                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                    <span>Species identification with confidence scores</span>
+                {isSearching ? (
+                  <div className="flex flex-col items-center justify-center h-full pt-16">
+                    <Dna className="h-16 w-16 text-blue-500 animate-pulse mb-6" />
+                    <Progress value={searchProgress} className="w-full max-w-sm mb-4" />
+                    <p className="text-gray-600 dark:text-gray-300">Comparing against genetic database...</p>
                   </div>
-                  <div className="flex items-start space-x-2">
-                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                    <span>Complete taxonomic classification</span>
+                ) : searchResults.length === 0 ? (
+                  <div className="text-center py-16 flex flex-col items-center justify-center h-full">
+                    <Dna className="h-20 w-20 mx-auto text-gray-400 dark:text-gray-500 mb-6" />
+                    <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">Awaiting Analysis</h3>
+                    <p className="text-gray-500 dark:text-gray-400 max-w-sm">Your species identification results will appear here.</p>
                   </div>
-                  <div className="flex items-start space-x-2">
-                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                    <span>Legal capture status verification</span>
-                  </div>
-                  <div className="flex items-start space-x-2">
-                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                    <span>Conservation status assessment</span>
-                  </div>
-                  <div className="flex items-start space-x-2">
-                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                    <span>Biodiversity impact analysis</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Results Section */}
-          <div className="lg:col-span-2">
-            {searchResults.length === 0 && !isSearching ? (
-              <Card className="h-96 flex items-center justify-center">
-                <CardContent className="text-center">
-                  <Dna className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                    No Analysis Results Yet
-                  </h3>
-                  <p className="text-gray-500">
-                    Upload a DNA sequence file or enter sequence data to begin species identification
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                    Analysis Results ({searchResults.length} matches)
-                  </h2>
-                  {searchResults.length > 0 && (
-                    <Button variant="outline" size="sm">
-                      <Download className="h-4 w-4 mr-2" />
-                      Export Results
-                    </Button>
-                  )}
-                </div>
-
-                {searchResults.map((result) => (
-                  <Card key={result.id}>
-                    <CardHeader>
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-lg">
-                          <em>{result.species_name}</em>
-                        </CardTitle>
-                        <div className="flex items-center space-x-2">
-                          <Badge variant="secondary">
-                            {result.confidence}% confidence
-                          </Badge>
-                          <Badge className={getLegalStatusColor(result.legal_status)}>
-                            {result.legal_status}
-                          </Badge>
-                        </div>
-                      </div>
-                      <p className="text-gray-600 dark:text-gray-400">
-                        {result.common_name}
-                      </p>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Taxonomic Classification */}
-                        <div>
-                          <h4 className="font-medium mb-3">Taxonomic Classification</h4>
-                          <div className="space-y-2 text-sm">
-                            {Object.entries(result.taxonomy).map(([rank, name]) => (
-                              <div key={rank} className="flex justify-between">
-                                <span className="capitalize text-gray-600 dark:text-gray-400">
-                                  {rank}:
-                                </span>
-                                <span className="font-medium">{name}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Conservation & Legal Status */}
-                        <div>
-                          <h4 className="font-medium mb-3">Status Information</h4>
-                          <div className="space-y-3">
+                ) : (
+                  <div className="space-y-4">
+                    {searchResults.map((result) => (
+                      <motion.div
+                        key={result.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <Card className="bg-gray-50/50 dark:bg-gray-800/40 hover:bg-gray-100/50 dark:hover:bg-gray-800/60 transition-colors">
+                          <CardHeader>
+                            <div className="flex items-center justify-between">
+                              <CardTitle className="text-lg text-blue-700 dark:text-blue-400">
+                                <em>{result.species_name}</em>
+                              </CardTitle>
+                              <Badge variant="secondary">{result.confidence}% Match</Badge>
+                            </div>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">{result.common_name}</p>
+                          </CardHeader>
+                          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 text-sm">
                             <div>
-                              <div className="flex items-center justify-between mb-1">
-                                <span className="text-sm text-gray-600">Conservation Status</span>
-                                <Badge className={getConservationStatusColor(result.conservation_status) + ' text-white'}>
-                                  {result.conservation_status}
-                                </Badge>
+                              <h4 className="font-semibold mb-2 text-gray-700 dark:text-gray-300">Taxonomy</h4>
+                              <div className="space-y-1">
+                                {Object.entries(result.taxonomy).map(([rank, name]) => (
+                                  <div key={rank} className="flex justify-between text-xs">
+                                    <span className="capitalize text-gray-500 dark:text-gray-400">{rank}</span>
+                                    <span className="font-medium text-gray-800 dark:text-gray-200">{name}</span>
+                                  </div>
+                                ))}
                               </div>
                             </div>
-                            
                             <div>
-                              <h5 className="text-sm font-medium mb-1">Biodiversity Role</h5>
-                              <p className="text-sm text-gray-600 dark:text-gray-400">
-                                {result.biodiversity_role}
-                              </p>
-                            </div>
-
-                            {result.legal_status === 'prohibited' && (
-                              <div className="flex items-start space-x-2 p-2 bg-red-50 rounded-lg">
-                                <AlertCircle className="h-4 w-4 text-red-500 mt-0.5" />
-                                <div className="text-sm text-red-700">
-                                  <strong>Protected Species:</strong> Capture prohibited under marine conservation laws
+                              <h4 className="font-semibold mb-2 text-gray-700 dark:text-gray-300">Status</h4>
+                              <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs text-gray-500 dark:text-gray-400">Conservation</span>
+                                  <Badge className={`${getConservationStatusColor(result.conservation_status)} text-white text-xs`}>{result.conservation_status}</Badge>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs text-gray-500 dark:text-gray-400">Legal Status</span>
+                                  <Badge variant={result.legal_status === 'prohibited' ? 'destructive' : 'outline'}>{result.legal_status}</Badge>
                                 </div>
                               </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </div>
+                              {result.legal_status === 'prohibited' && (
+                                <div className="mt-3 flex items-start space-x-2 p-2 bg-red-100/50 dark:bg-red-900/30 rounded-lg">
+                                  <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 shrink-0" />
+                                  <p className="text-xs text-red-700 dark:text-red-300">Capture of this species is prohibited under conservation laws.</p>
+                                </div>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
       </div>
     </div>

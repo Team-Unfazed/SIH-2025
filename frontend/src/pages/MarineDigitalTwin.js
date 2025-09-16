@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -6,33 +7,21 @@ import { Badge } from '../components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Progress } from '../components/ui/progress';
+import { Label } from '../components/ui/label';
 import { 
-  Globe, 
-  Play, 
-  Pause, 
-  RotateCcw, 
-  Settings, 
-  Thermometer, 
-  Droplets, 
-  Fish,
-  TreePine,
-  TrendingUp,
-  TrendingDown,
-  Activity,
-  AlertTriangle,
-  Info,
-  Maximize
+  Globe, Play, Pause, RotateCcw, Settings, Thermometer, Droplets, Fish,
+  TreePine, TrendingUp, TrendingDown, Activity, AlertTriangle, Info, Maximize
 } from 'lucide-react';
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { digitalTwinScenarios } from '../data/mockData';
 import { toast } from '../hooks/use-toast';
+import { motion } from 'framer-motion';
 
 const MarineDigitalTwin = () => {
   const [currentScenario, setCurrentScenario] = useState('current');
   const [selectedYear, setSelectedYear] = useState(2024);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
-  const [selectedMetric, setSelectedMetric] = useState('temperature');
   const [simulationProgress, setSimulationProgress] = useState(0);
   const [isRunningSimulation, setIsRunningSimulation] = useState(false);
   const canvasRef = useRef(null);
@@ -41,87 +30,84 @@ const MarineDigitalTwin = () => {
   const currentData = scenarios.find(s => s.id === currentScenario) || scenarios[0];
 
   const timelineData = [
-    { year: 2020, temperature: 26.8, fish_stock: 78, biodiversity: 0.82, coral_cover: 72 },
-    { year: 2022, temperature: 27.2, fish_stock: 75, biodiversity: 0.80, coral_cover: 68 },
-    { year: 2024, temperature: 27.8, fish_stock: 72, biodiversity: 0.78, coral_cover: 65 },
-    { year: 2026, temperature: 28.5, fish_stock: 68, biodiversity: 0.75, coral_cover: 60 },
-    { year: 2028, temperature: 29.2, fish_stock: 63, biodiversity: 0.71, coral_cover: 55 },
-    { year: 2030, temperature: 30.0, fish_stock: 58, biodiversity: 0.67, coral_cover: 48 },
-    { year: 2035, temperature: 31.5, fish_stock: 45, biodiversity: 0.58, coral_cover: 35 }
+    { year: 2020, temp: 26.8, fish: 78, coral: 72 },
+    { year: 2024, temp: 27.8, fish: 72, coral: 65 },
+    { year: 2030, temp: 30.0, fish: 58, coral: 48 },
+    { year: 2035, temp: 31.5, fish: 45, coral: 35 },
   ];
 
-  // Simple 3D visualization simulation
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    const width = canvas.width;
-    const height = canvas.height;
-
-    const animate = () => {
-      ctx.clearRect(0, 0, width, height);
-      
-      // Draw ocean background with gradient
-      const gradient = ctx.createLinearGradient(0, 0, 0, height);
-      gradient.addColorStop(0, '#87ceeb');
-      gradient.addColorStop(0.5, '#4682b4');
-      gradient.addColorStop(1, '#191970');
-      
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, width, height);
-      
-      // Draw temperature visualization
-      const tempOpacity = Math.min(currentData.temperature_change / 3, 1);
-      ctx.fillStyle = `rgba(255, 100, 100, ${tempOpacity * 0.3})`;
-      ctx.fillRect(0, 0, width, height);
-      
-      // Draw fish representation
-      const fishCount = Math.floor(currentData.fish_stock_health / 10);
-      ctx.fillStyle = '#ffffff';
-      for (let i = 0; i < fishCount; i++) {
-        const x = (i * 50 + Date.now() * 0.001 * 20) % width;
-        const y = 100 + Math.sin(Date.now() * 0.001 + i) * 20;
-        ctx.beginPath();
-        ctx.arc(x, y, 3, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      
-      // Draw coral coverage
-      const coralHeight = (currentData.coral_cover / 100) * 80;
-      ctx.fillStyle = '#ff7f50';
-      ctx.fillRect(0, height - coralHeight, width, coralHeight);
-      
-      // Add labels
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '14px Arial';
-      ctx.fillText(`Year: ${currentData.year}`, 10, 30);
-      ctx.fillText(`Temperature: +${currentData.temperature_change.toFixed(1)}°C`, 10, 50);
-      ctx.fillText(`Fish Health: ${currentData.fish_stock_health}%`, 10, 70);
-      ctx.fillText(`Coral Cover: ${currentData.coral_cover}%`, 10, 90);
-      
-      if (isPlaying) {
-        requestAnimationFrame(animate);
-      }
+    
+    const resizeCanvas = () => {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
     };
     
+    // Initial resize
+    resizeCanvas();
+    
+    // Add resize listener
+    window.addEventListener('resize', resizeCanvas);
+    
+    const ctx = canvas.getContext('2d');
+    let animationFrameId;
+
+    const animate = () => {
+      const width = canvas.width;
+      const height = canvas.height;
+      
+      // Clear canvas
+      ctx.clearRect(0, 0, width, height);
+      
+      // Create gradient background
+      const gradient = ctx.createLinearGradient(0, 0, 0, height);
+      gradient.addColorStop(0, '#1e3a8a');
+      gradient.addColorStop(1, '#0c1e3e');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, width, height);
+
+      // Add temperature effect overlay
+      const tempOpacity = Math.min(currentData.temperature_change / 3, 1);
+      ctx.fillStyle = `rgba(255, 100, 100, ${tempOpacity * 0.2})`;
+      ctx.fillRect(0, 0, width, height);
+
+      // Add floating particles
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+      for (let i = 0; i < 50; i++) {
+        const x = Math.random() * width;
+        const y = Math.random() * height;
+        ctx.beginPath();
+        ctx.arc(x, y, Math.random() * 1.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      if (isPlaying) {
+        animationFrameId = requestAnimationFrame(animate);
+      }
+    };
+
     animate();
+
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
   }, [currentData, isPlaying]);
 
   const runSimulation = async () => {
     setIsRunningSimulation(true);
     setSimulationProgress(0);
-    
-    // Simulate running complex marine simulation
-    const progressInterval = setInterval(() => {
+    const interval = setInterval(() => {
       setSimulationProgress(prev => {
         if (prev >= 100) {
-          clearInterval(progressInterval);
+          clearInterval(interval);
           setIsRunningSimulation(false);
-          toast({
-            title: "Simulation Complete",
-            description: "Marine ecosystem modeling has finished processing",
-          });
+          toast({ title: "Simulation Complete", description: "Ecosystem model has been updated." });
           return 100;
         }
         return prev + 2;
@@ -129,313 +115,109 @@ const MarineDigitalTwin = () => {
     }, 100);
   };
 
-  const getHealthColor = (value, reverse = false) => {
-    if (reverse) {
-      if (value > 70) return 'text-red-600';
-      if (value > 40) return 'text-yellow-600';
-      return 'text-green-600';
-    } else {
-      if (value > 70) return 'text-green-600';
-      if (value > 40) return 'text-yellow-600';
-      return 'text-red-600';
-    }
-  };
-
-  const getHealthIcon = (value, reverse = false) => {
-    if (reverse) {
-      if (value > 70) return TrendingUp;
-      if (value > 40) return Activity;
-      return TrendingDown;
-    } else {
-      if (value > 70) return TrendingUp;
-      if (value > 40) return Activity;
-      return TrendingDown;
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-16">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-50 dark:from-blue-950 dark:via-black dark:to-blue-950 pt-20">
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Marine Digital Twin Simulation
-          </h1>
-          <p className="text-gray-600 dark:text-gray-300">
-            Interactive 3D simulation for visualizing ocean changes and future scenarios
-          </p>
-        </div>
+        <motion.div className="text-center mb-12" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Marine Digital Twin</h1>
+          <p className="text-lg text-gray-600 dark:text-gray-300">Visualize and predict ocean changes with AI-powered simulations.</p>
+        </motion.div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          {/* 3D Visualization */}
-          <div className="xl:col-span-2">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center space-x-2">
-                    <Globe className="h-5 w-5" />
-                    <span>3D Ocean Simulation</span>
-                  </CardTitle>
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setIsPlaying(!isPlaying)}
-                    >
-                      {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Maximize className="h-4 w-4" />
-                    </Button>
-                  </div>
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+          <motion.div className="xl:col-span-2" initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.2 }}>
+            <Card className="h-full flex flex-col bg-white/60 dark:bg-gray-900/40 backdrop-blur-lg border-gray-200/50 dark:border-gray-700/50 shadow-xl">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="flex items-center"><Globe className="h-5 w-5 mr-2 text-blue-500" />3D Ocean Simulation</CardTitle>
+                <div className="flex items-center space-x-2">
+                  <Button variant="outline" size="icon" onClick={() => setIsPlaying(!isPlaying)}>{isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}</Button>
+                  <Button variant="outline" size="icon"><Maximize className="h-4 w-4" /></Button>
                 </div>
               </CardHeader>
-              <CardContent>
-                {/* 3D Canvas Placeholder */}
-                <div className="relative bg-blue-900 rounded-lg overflow-hidden">
-                  <canvas
-                    ref={canvasRef}
-                    width={800}
-                    height={400}
-                    className="w-full h-96"
-                  />
-                  <div className="absolute top-4 right-4 bg-black bg-opacity-50 text-white px-3 py-2 rounded">
-                    <p className="text-sm">Three.js Integration Ready</p>
-                  </div>
+              <CardContent className="flex-1 flex flex-col">
+                <div className="flex-1 relative bg-blue-900 rounded-lg overflow-hidden min-h-[400px]">
+                  <canvas ref={canvasRef} className="w-full h-full" />
+                  <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-xs">Three.js Model Placeholder</div>
                 </div>
-
-                {/* Timeline Controls */}
                 <div className="mt-4 space-y-4">
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">Timeline: {selectedYear}</span>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-xs">2020</span>
-                        <span className="text-xs">2035</span>
-                      </div>
-                    </div>
-                    <Slider
-                      value={[selectedYear]}
-                      onValueChange={(value) => setSelectedYear(value[0])}
-                      min={2020}
-                      max={2035}
-                      step={1}
-                      className="w-full"
-                    />
-                  </div>
-
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setSelectedYear(2020)}
-                      >
-                        <RotateCcw className="h-4 w-4 mr-1" />
-                        Reset
-                      </Button>
-                      <span className="text-sm text-gray-600">Speed: {playbackSpeed}x</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={runSimulation}
-                        disabled={isRunningSimulation}
-                      >
-                        <Settings className="h-4 w-4 mr-1" />
-                        Run Simulation
-                      </Button>
+                    <span className="text-sm font-medium">Timeline: {selectedYear}</span>
+                    <div className="flex items-center space-x-2 text-xs text-gray-500">
+                      <span>2020</span><Slider value={[selectedYear]} onValueChange={(v) => setSelectedYear(v[0])} min={2020} max={2035} step={1} className="w-48" /><span>2035</span>
                     </div>
                   </div>
-
-                  {isRunningSimulation && (
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Processing Marine Model...</span>
-                        <span>{simulationProgress}%</span>
-                      </div>
-                      <Progress value={simulationProgress} />
-                    </div>
-                  )}
+                  {isRunningSimulation && <Progress value={simulationProgress} />}
                 </div>
               </CardContent>
             </Card>
+          </motion.div>
 
-            {/* Scenario Comparison */}
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle>Scenario Analysis</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={timelineData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="year" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="temperature" stroke="#EF4444" strokeWidth={2} name="Temperature (°C)" />
-                    <Line type="monotone" dataKey="fish_stock" stroke="#3B82F6" strokeWidth={2} name="Fish Stock %" />
-                    <Line type="monotone" dataKey="coral_cover" stroke="#F59E0B" strokeWidth={2} name="Coral Cover %" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Control Panel */}
-          <div className="space-y-6">
-            {/* Scenario Selection */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Scenario Selection</CardTitle>
-              </CardHeader>
+          <motion.div className="space-y-8" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.4 }}>
+            <Card className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-lg border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+              <CardHeader><CardTitle>Simulation Controls</CardTitle></CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Choose Scenario</label>
+                  <Label>Climate Scenario</Label>
                   <Select value={currentScenario} onValueChange={setCurrentScenario}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {scenarios.map((scenario) => (
-                        <SelectItem key={scenario.id} value={scenario.id}>
-                          {scenario.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>{scenarios.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}</SelectContent>
                   </Select>
                 </div>
-
-                <div className="bg-blue-50 dark:bg-blue-900 rounded-lg p-4">
-                  <h4 className="font-medium mb-2">Current Scenario</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {currentData.name} - Simulating marine ecosystem changes through {currentData.year}
-                  </p>
-                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400 bg-blue-50/50 dark:bg-blue-900/30 p-3 rounded-lg">{currentData.name}: {currentData.description}</p>
+                <Button onClick={runSimulation} disabled={isRunningSimulation} className="w-full bg-blue-600 hover:bg-blue-700 text-white"><Settings className="h-4 w-4 mr-2" />Run New Simulation</Button>
               </CardContent>
             </Card>
 
-            {/* Key Metrics */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Real-time Metrics</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center">
-                    <Thermometer className="h-8 w-8 mx-auto text-red-500 mb-2" />
-                    <p className="text-2xl font-bold">+{currentData.temperature_change}°C</p>
-                    <p className="text-xs text-gray-600">Temperature Change</p>
-                  </div>
-                  <div className="text-center">
-                    <Droplets className="h-8 w-8 mx-auto text-blue-500 mb-2" />
-                    <p className="text-2xl font-bold">{currentData.sea_level_rise}cm</p>
-                    <p className="text-xs text-gray-600">Sea Level Rise</p>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Fish className="h-4 w-4" />
-                      <span className="text-sm">Fish Stock Health</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className={`font-medium ${getHealthColor(currentData.fish_stock_health)}`}>
-                        {currentData.fish_stock_health}%
-                      </span>
-                      {React.createElement(getHealthIcon(currentData.fish_stock_health), {
-                        className: `h-4 w-4 ${getHealthColor(currentData.fish_stock_health)}`
-                      })}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <TreePine className="h-4 w-4" />
-                      <span className="text-sm">Biodiversity Index</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className={`font-medium ${getHealthColor(currentData.biodiversity_index * 100)}`}>
-                        {currentData.biodiversity_index.toFixed(2)}
-                      </span>
-                      {React.createElement(getHealthIcon(currentData.biodiversity_index * 100), {
-                        className: `h-4 w-4 ${getHealthColor(currentData.biodiversity_index * 100)}`
-                      })}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Activity className="h-4 w-4" />
-                      <span className="text-sm">Coral Coverage</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className={`font-medium ${getHealthColor(currentData.coral_cover)}`}>
-                        {currentData.coral_cover}%
-                      </span>
-                      {React.createElement(getHealthIcon(currentData.coral_cover), {
-                        className: `h-4 w-4 ${getHealthColor(currentData.coral_cover)}`
-                      })}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <AlertTriangle className="h-4 w-4" />
-                      <span className="text-sm">Pollution Level</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className={`font-medium ${getHealthColor(currentData.pollution_level, true)}`}>
-                        {currentData.pollution_level}%
-                      </span>
-                      {React.createElement(getHealthIcon(currentData.pollution_level, true), {
-                        className: `h-4 w-4 ${getHealthColor(currentData.pollution_level, true)}`
-                      })}
-                    </div>
-                  </div>
-                </div>
+            <Card className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-lg border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+              <CardHeader><CardTitle>Key Metrics</CardTitle></CardHeader>
+              <CardContent className="space-y-3">
+                <MetricDisplay icon={Thermometer} label="Temp. Change" value={`+${currentData.temperature_change}°C`} color="text-red-500" />
+                <MetricDisplay icon={Droplets} label="Sea Level Rise" value={`${currentData.sea_level_rise}cm`} color="text-blue-500" />
+                <MetricDisplay icon={Fish} label="Fish Stock" value={`${currentData.fish_stock_health}%`} health={currentData.fish_stock_health} />
+                <MetricDisplay icon={TreePine} label="Biodiversity" value={currentData.biodiversity_index.toFixed(2)} health={currentData.biodiversity_index * 100} />
+                <MetricDisplay icon={Activity} label="Coral Cover" value={`${currentData.coral_cover}%`} health={currentData.coral_cover} />
               </CardContent>
             </Card>
-
-            {/* What-if Scenarios */}
-            <Card>
-              <CardHeader>
-                <CardTitle>What-if Analysis</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <Button variant="outline" className="w-full justify-start">
-                    <TrendingUp className="h-4 w-4 mr-2" />
-                    Increase Marine Protected Areas
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <Fish className="h-4 w-4 mr-2" />
-                    Reduce Fishing Quotas by 30%
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <Droplets className="h-4 w-4 mr-2" />
-                    Implement Pollution Controls
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start">
-                    <Thermometer className="h-4 w-4 mr-2" />
-                    Climate Adaptation Measures
-                  </Button>
-                </div>
-
-                <div className="bg-yellow-50 dark:bg-yellow-900 rounded-lg p-3">
-                  <div className="flex items-start space-x-2">
-                    <Info className="h-4 w-4 text-yellow-600 mt-0.5" />
-                    <div className="text-sm text-yellow-800 dark:text-yellow-200">
-                      <strong>Interactive Feature:</strong> Click scenarios to see real-time impact predictions on the 3D visualization
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          </motion.div>
         </div>
+
+        <motion.div className="mt-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.6 }}>
+          <Card className="bg-white/60 dark:bg-gray-900/40 backdrop-blur-lg border-gray-200/50 dark:border-gray-700/50 shadow-lg">
+            <CardHeader><CardTitle>Future Projections</CardTitle></CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={250}>
+                <AreaChart data={timelineData}>
+                  <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} />
+                  <XAxis dataKey="year" fontSize={12} />
+                  <YAxis fontSize={12} />
+                  <Tooltip />
+                  <Legend />
+                  <Area type="monotone" dataKey="temp" name="Temperature (°C)" stackId="1" stroke="#EF4444" fill="#EF4444" fillOpacity={0.3} />
+                  <Area type="monotone" dataKey="fish" name="Fish Stock (%)" stackId="1" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.3} />
+                  <Area type="monotone" dataKey="coral" name="Coral Cover (%)" stackId="1" stroke="#F59E0B" fill="#F59E0B" fillOpacity={0.3} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+const MetricDisplay = ({ icon, label, value, health, color }) => {
+  const Icon = icon;
+  const healthColor = health > 70 ? 'text-green-500' : health > 40 ? 'text-yellow-500' : 'text-red-500';
+  const HealthIcon = health > 70 ? TrendingUp : health > 40 ? Activity : TrendingDown;
+
+  return (
+    <div className="flex items-center justify-between text-sm">
+      <div className="flex items-center space-x-2">
+        <Icon className={`h-4 w-4 ${color || 'text-gray-500'}`} />
+        <span>{label}</span>
+      </div>
+      <div className="flex items-center space-x-2 font-medium">
+        <span className={health ? healthColor : color}>{value}</span>
+        {health && <HealthIcon className={`h-4 w-4 ${healthColor}`} />}
       </div>
     </div>
   );

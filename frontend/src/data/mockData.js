@@ -180,6 +180,7 @@ export const digitalTwinScenarios = [
   {
     id: 'current',
     name: 'Current State (2024)',
+    description: 'Current marine ecosystem conditions based on 2024 data',
     year: 2024,
     temperature_change: 0,
     sea_level_rise: 0,
@@ -191,6 +192,7 @@ export const digitalTwinScenarios = [
   {
     id: 'scenario_1',
     name: 'Conservative Climate (2035)',
+    description: 'Moderate climate change impact with current mitigation efforts',
     year: 2035,
     temperature_change: 1.2,
     sea_level_rise: 15,
@@ -202,6 +204,7 @@ export const digitalTwinScenarios = [
   {
     id: 'scenario_2',
     name: 'Moderate Impact (2035)',
+    description: 'Significant climate impact with limited adaptation measures',
     year: 2035,
     temperature_change: 2.0,
     sea_level_rise: 25,
@@ -213,6 +216,7 @@ export const digitalTwinScenarios = [
   {
     id: 'scenario_3',
     name: 'High Impact (2035)',
+    description: 'Severe climate change scenario with ecosystem collapse risk',
     year: 2035,
     temperature_change: 3.2,
     sea_level_rise: 40,
